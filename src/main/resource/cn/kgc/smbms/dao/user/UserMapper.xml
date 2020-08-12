@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace: dao接口的全路径-->
+<mapper namespace="cn.kgc.smbms.dao.user.UserMapper">
+    <!--登录-->
+    <select id="doLogin" resultType="User">
+        select*from smbms_user where userCode=#{userCode} and userPassword=#{userPassword}
+    </select>
+    <resultMap id="getUserList" type="User">
+        <id property="id" column="id"/>
+        <result property="userCode" column="userCode"/>
+        <result property="userName" column="userName"/>
+        <result property="userPassword" column="userPassword"/>
+        <result property="gender" column="gender"/>
+        <result property="age" column="age"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="userRole" column="userRole"/>
+        <result property="roleName" column="roleName"/>
+    </resultMap>
+    <!--展示用户界面-->
+    <select id="findAllUser" resultMap="getUserList">
+        select u.* ,r.roleName from smbms_user u,smbms_role r where u.userRole=r.id
+        <if test="userCode!=null and userName!=''">
+            and u.userCode like concat('%',#{userCode},'%'),
+        </if>
+        <if test="userRole>0">
+            and r.id = #{userRole}
+        </if>
+        <bind name="num" value="(currentPageNo-1)*pageSize"/>
+        <if test="num>=0">
+            limit num ,5
+        </if>
+    </select>
+    <!--.记录总数-->
+    <select id="listUserCount" resultType="User">
+        select count(1) count from smbms_user u,smbms_role
+        <where>
+            <if test="userCode!=null and userName!=''">
+                and u.userCode like concat('%',#{userCode},'%')
+            </if>
+            <if test="userRole>0">
+                and r.id = #{userRole}
+            </if>
+        </where>
+    </select>
+
+</mapper>
